@@ -2,7 +2,7 @@
 var models = require('../models/models.js');
 
 exports.load = function(req,res,next,quizId){
-	models.Quiz.findById(req.params.quizId).then(
+	models.Quiz.find(req.params.quizId).then(
 		function(quiz){
 			if (quiz) {
 				req.quiz = quiz;
@@ -18,7 +18,7 @@ exports.load = function(req,res,next,quizId){
 
 exports.new = function(req,res){
 	var quiz = models.Quiz.build(
-		{pregunta:"Pregunta",respuesta:"Respuesta"});
+		{pregunta:"Pregunta",respuesta:"Respuesta",tema:"otro"});
 	res.render('quizes/new', {quiz:quiz,errors:[]});
 }
 
@@ -29,7 +29,7 @@ exports.create = function(req,res){
 			res.render("quizes/new",{quiz:quiz,errors:err.errors});
 		}else{
 			quiz
-			.save({fields:["pregunta","respuesta"]})
+			.save({fields:["pregunta","respuesta","tema"]})
 			.then(function(){ return res.redirect('/quizes'); });
 		}
 	});
@@ -43,6 +43,7 @@ exports.edit = function(req,res){
 exports.update = function(req,res){
 	req.quiz.pregunta =  req.body.quiz.pregunta;
 	req.quiz.respuesta =  req.body.quiz.respuesta;
+	req.quiz.tema =  req.body.quiz.tema;
 
 	req.quiz
 	.validate()
@@ -51,7 +52,7 @@ exports.update = function(req,res){
 			res.render('quizes/edit',{quiz: req.quiz, errors: err.errors});
 		}else{
 			req.quiz
-			.save( { fields: ["pregunta","respuesta"]})
+			.save( { fields: ["pregunta","respuesta","tema"]})
 			.then( function(){ return res.redirect('/quizes')});
 		}
 
