@@ -11,7 +11,7 @@ exports.load = function(req,res,next,quizId){
 				next(new Error('No existe quizId='+quizId));
 			}
 
-			res.render('quizes/show',{quiz:quiz});
+			res.render('quizes/show',{quiz:quiz,errors:[]});
 		}
 	).catch(function(error){next(error);})
 }
@@ -19,14 +19,21 @@ exports.load = function(req,res,next,quizId){
 exports.new = function(req,res){
 	var quiz = models.Quiz.build(
 		{pregunta:"Pregunta",respuesta:"Respuesta"});
-	res.render('quizes/new', {quiz:quiz});
+	res.render('quizes/new', {quiz:quiz,errors:[]});
 }
 
 exports.create = function(req,res){
 	var quiz = models.Quiz.build(req.body.quiz);
-	quiz.save({fields:["pregunta","respuesta"]}).then(function(){
-		res.redirect('/quizes');
+	quiz.validate().then(function(err){
+		if(err){
+			res.render("quizes/new",{quiz:quiz,errors:err.errors});
+		}else{
+			quiz
+			.save({fields:["pregunta","respuesta"]})
+			.then(function(){ res.redirect('/quizes'); });
+		}
 	});
+	
 }
 
 
@@ -34,13 +41,13 @@ exports.index = function(req,res){
 	var search = req.query.search || null;
 	if (search===null){
 		models.Quiz.findAll().then(function(quizes){
-			res.render("quizes/index",{quizes:quizes});
+			res.render("quizes/index",{quizes:quizes,errors:[]});
 		});
 	}else{
 		search = '%'+search.replace(/\ +/g,"%")+'%';
 		console.log(search);
 		models.Quiz.findAll({where:["pregunta LIKE ?",search]}).then(function(quizes){
-			res.render("quizes/index",{quizes:quizes});
+			res.render("quizes/index",{quizes:quizes,errors:[]});
 		});
 	}
 
@@ -48,7 +55,7 @@ exports.index = function(req,res){
 
 
 exports.show = function(req,res){
-	res.render('quizes/show',{quiz:req.quiz});
+	res.render('quizes/show',{quiz:req.quiz,errors:[]});
 };
 /*
 exports.question = function(req,res){
@@ -63,9 +70,9 @@ exports.answer = function(req,res){
 	if (req.query.respuesta === req.quiz.respuesta){
 		resultado = 'Correcto';
 	}
-	res.render('quizes/answer',{quiz:req.quiz, respuesta:resultado});
+	res.render('quizes/answer',{quiz:req.quiz, respuesta:resultado,errors:[]});
 };
 
 exports.author = function(req,res){
-	res.render('author',{});
+	res.render('author',{errors:[]});
 }
