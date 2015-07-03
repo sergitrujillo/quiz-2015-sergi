@@ -17,9 +17,19 @@ exports.load = function(req,res,next,quizId){
 }
 
 exports.index = function(req,res){
-	models.Quiz.findAll().then(function(quizes){
-		res.render("quizes/index",{quizes:quizes});
-	})
+	var search = req.query.search || null;
+	if (search===null){
+		models.Quiz.findAll().then(function(quizes){
+			res.render("quizes/index",{quizes:quizes});
+		});
+	}else{
+		search = '%'+search.replace(/\ +/g,"%")+'%';
+		console.log(search);
+		models.Quiz.findAll({where:["pregunta LIKE ?",search]}).then(function(quizes){
+			res.render("quizes/index",{quizes:quizes});
+		});
+	}
+
 }
 
 
