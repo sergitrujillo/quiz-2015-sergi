@@ -16,6 +16,20 @@ exports.load = function(req,res,next,quizId){
 	).catch(function(error){next(error);})
 }
 
+exports.new = function(req,res){
+	var quiz = models.Quiz.build(
+		{pregunta:"Pregunta",respuesta:"Respuesta"});
+	res.render('quizes/new', {quiz:quiz});
+}
+
+exports.create = function(req,res){
+	var quiz = models.Quiz.build(req.body.quiz);
+	quiz.save({fields:["pregunta","respuesta"]}).then(function(){
+		res.redirect('/quizes');
+	});
+}
+
+
 exports.index = function(req,res){
 	var search = req.query.search || null;
 	if (search===null){
