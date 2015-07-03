@@ -30,12 +30,33 @@ exports.create = function(req,res){
 		}else{
 			quiz
 			.save({fields:["pregunta","respuesta"]})
-			.then(function(){ res.redirect('/quizes'); });
+			.then(function(){ return res.redirect('/quizes'); });
 		}
 	});
 	
 }
+exports.edit = function(req,res){
+	var quiz = req.quiz;
+	res.render('quizes/edit',{quiz:quiz,errors:[]});
+}
 
+exports.update = function(req,res){
+	req.quiz.pregunta =  req.body.quiz.pregunta;
+	req.quiz.respuesta =  req.body.quiz.respuesta;
+
+	req.quiz
+	.validate()
+	.then(function(err){
+		if (err){
+			res.render('quizes/edit',{quiz: req.quiz, errors: err.errors});
+		}else{
+			req.quiz
+			.save( { fields: ["pregunta","respuesta"]})
+			.then( function(){ return res.redirect('/quizes')});
+		}
+
+	});
+}
 
 exports.index = function(req,res){
 	var search = req.query.search || null;
@@ -45,7 +66,6 @@ exports.index = function(req,res){
 		});
 	}else{
 		search = '%'+search.replace(/\ +/g,"%")+'%';
-		console.log(search);
 		models.Quiz.findAll({where:["pregunta LIKE ?",search]}).then(function(quizes){
 			res.render("quizes/index",{quizes:quizes,errors:[]});
 		});
