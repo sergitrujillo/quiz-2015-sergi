@@ -9,7 +9,7 @@ exports.new = function(req,res){
 // POST
 exports.create = function(req,res){
 	var comment = models.Comment.build(
-		{texto: req.body.texto,
+		{texto: req.body.comment.texto,
 			QuizId: req.params.quizId
 		});
 	comment
