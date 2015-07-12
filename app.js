@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req,res,next){
     // guardar path en session.redir para despues de login
-    if (req.path.match(/\/login|\/logout/)) {
+    if (!req.path.match(/\/login|\/logout/)) {
         req.session.redir = req.path;
     }
 
@@ -42,6 +42,24 @@ app.use(function(req,res,next){
 
 });
 
+
+app.use(function(req,res,next){
+    if (req.session.user && !req.path.match(/\/logout/)){
+        var timeout = 120;
+        var ahora = Math.round(+new Date()/1000);
+        // el primer login no tendrá el datos de ultimo acceso como sera el primer login lo validamos
+        var timelastaccess = req.session.lastaccess ? (ahora - req.session.lastaccess) : timeout; 
+        if ( timelastaccess > timeout ){
+            res.redirect("/logout");
+        }else{
+            req.session.lastaccess = ahora;    
+            next();
+        }
+    }else{
+        next();
+    }
+
+});
 
 app.use('/', routes);
 
