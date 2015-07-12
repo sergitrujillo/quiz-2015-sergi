@@ -15,7 +15,7 @@ exports.load = function(req,res,next,quizId){
 				next(new Error('No existe quizId='+quizId));
 			}
 
-			res.render('quizes/show',{quiz:quiz,errors:[]});
+			//res.render('quizes/show',{quiz:quiz,errors:[]});
 		}
 	).catch(function(error){next(error);})
 }
